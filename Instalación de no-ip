@@ -1,0 +1,30 @@
+Ahora os mostrare el script para poder instalar no-ip en la que hay que compilar y esta claro haberse registrado en www.no-ip.com:
+
+#!/bin/bash 
+echo “SE INICIARA LA INSTALACION DE NO-IP” 
+echo 
+mkdir /descargaNP 
+cd /descargaNP 
+wget http://www.no-ip.com/client/linux/noip-duc-linux.tar.gz 
+tar -zxvf noip-duc-linux.tar.gz 
+cd noip-2.1.9-1/ 
+make 
+sudo make install 
+echo 
+echo "#! /bin/bash
+
+BEGIN INIT INFO
+Provides: blabla
+Required-Start: $syslog
+Required-Stop: $syslog
+Default-Start: 2 3 4 5
+Default-Stop: 0 1 6
+Short-Description: blabla
+Description: 
+#
+END INIT INFO 
+sudo /usr/local/bin/noip2" >> /etc/init.d/noip2 
+sudo chmod +x /etc/init.d/noip2 
+sudo update-rc.d noip2 defaults 
+echo"SE INSTALO CORRECTAMENTE NO-IP"
+Tarde en poner los comits esto porque no sabía como funcionaba esto
