@@ -1,0 +1,120 @@
+
+#!/bin/bash
+
+# Muestra el menu general
+_menu()
+{
+    echo "Selecciona una opcion:"
+    echo
+    echo "1) Cambiar ruta del directorio"
+    echo "2) Añadir un usuario al directorio"
+    echo "3) Quitar un usuario del directorio"
+    echo "4) Añadir usuario al sistema Samba"
+    echo "5) Eliminar usuario del sistema Samba"
+    echo "6) Activar Samba"
+    echo "7) Desactivar Samba"
+    echo "8) Volver al menu principal"
+    echo "9) Salir"
+    echo -n "Indica una opcion: "
+}
+
+# Muestra la opcion seleccionada del menu
+_mostrarResultado()
+{
+    clear
+    echo ""
+    echo "------------------------------------"
+    echo "Has seleccionado la opcion $1"
+    echo "------------------------------------"
+    echo ""
+}
+
+# opcion por defecto
+opc="0"
+
+# bucle mientas la opcion indicada sea diferente de 9 (salir)
+until [ "$opc" -eq "9" ];
+do
+    case $opc in
+        1)
+        read -p "Ruta del directorio nuevo: " var2
+        sed -i "335,339d" /etc/samba/smb.conf
+echo "path = $var2
+valid users = @admitidos
+guest ok = no
+writable = yes
+browsable = yes" >> /etc/samba/smb.conf
+        sudo /etc/init.d/samba restart
+        echo
+            _mostrarResultado $opc
+            echo "Direcorio $var2 con exito"
+        echo ""
+        echo ""
+            _menu
+            ;;
+        2)
+        read -p "Nombre del usuario a añadir al directorio: " var3
+        sudo addgroup admitidos $var3
+        sudo /etc/init.d/samba restart
+            _mostrarResultado $opc
+                echo "El usuario $var3 añadido con exito al directorio"
+                echo ""
+                echo ""
+            _menu
+            ;;
+        3)
+        read -p "Nombre del usuario a quitar del directorio: " var4
+        sudo delgroup admitidos $var4
+        sudo /etc/init.d/samba restart
+            _mostrarResultado $opc
+        echo "Usuario $var4 quitado con exito del directorio"
+        echo ""
+        echo ""
+            _menu
+            ;;
+        4)
+        read -p "Nombre del usuario a añadir al sistema Samba: " var5
+        sudo smbpasswd -a $var5
+        sudo /etc/init.d/samba restart
+            _mostrarResultado $opc
+        echo "Usuario $var5 añadido al sistema Samba correctamente"
+        echo ""
+        echo ""
+            _menu
+            ;;
+        5)
+        read -p "Nombre del usuarioa a eliminar del sistema Samba: " var6
+        sudo smbpasswd -x $var6
+        sudo /etc/init.d/samba restart
+            _mostrarResultado $opc
+        echo "Usuario $var6 fue eliminado correctamente del sistema Samba"
+        echo ""
+        echo ""
+            _menu
+            ;;
+        6)
+        sudo chkconfig smbd on
+            _mostrarResultado $opc
+            _menu
+                echo""
+        echo "Samba activado"
+            ;;
+        7)
+        sudo chkconfig smbd off
+            _mostrarResultado $opc
+            _menu
+                echo ""
+        echo "Samba desactivado"
+            ;;
+        8)
+            _mostrarResultado $opc
+            _menu
+            ;;
+        *)
+            # Esta opcion se ejecuta si no es ninguna de las anteriores
+            clear
+            _menu
+            ;;
+    esac
+    read opc
+done
