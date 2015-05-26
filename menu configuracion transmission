@@ -1,0 +1,101 @@
+#!/bin/bash
+
+# Muestra el menu general
+_menu()
+{
+    echo "Selecciona una opcion:"
+    echo
+    echo "1) Cambiar nombre de usuario"
+    echo "2) Cambiar contraseña de usuario"
+    echo "3) Cambiar puerto"
+    echo "4) Activar Transmission"
+    echo "5) Desactivar Transmission"
+    echo "6) Volver al menu principal"
+    echo "7) Salir"
+    echo -n "Indica una opcion: "
+}
+
+# Muestra la opcion seleccionada del menu
+_mostrarResultado()
+{
+    clear
+    echo ""
+    echo "------------------------------------"
+    echo "Has seleccionado la opcion $1"
+    echo "------------------------------------"
+    echo ""
+}
+
+# opcion por defecto
+opc="0"
+
+# bucle mientas la opcion indicada sea diferente de 9 (salir)
+until [ "$opc" -eq "7" ];
+do
+    case $opc in
+        1)
+                read -p "Nuevo nombre de usuario: " var2
+                sudo service transmission-daemon stop
+ sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+ sed -i "s/$(head -n 51 /etc/transmission-daemon/settings.json | tail -1)/    \"rpc-username\": \"$var2\",/g" /etc/transmission-daemon/settings.json
+ sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+ sudo service transmission-daemon restart
+            _mostrarResultado $opc
+                   echo ""
+                   echo "Nombre de usuario cambiado correctamente"
+                   echo ""
+            _menu
+            ;;
+        2)
+        read -p "Nueva contraseña: " var1
+                sudo service transmission-daemon stop
+                sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+ sed -i "s/$(head -n 48 /etc/transmission-daemon/settings.json | tail -1)/    \"rpc-password\": \"$var1\", /g" /etc/transmission-daemon/settings.json
+ sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+sudo service transmission-daemon restart
+            _mostrarResultado $opc
+                   echo ""
+                   echo "Contraseña cambiada correctamente"
+                   echo ""
+            _menu
+            ;;
+        3)
+        read -p "Nuevo puerto: " var3
+                sudo service transmission-daemon stop
+ sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+ sed -i "s/$(head -n 49 /etc/transmission-daemon/settings.json | tail -1)/    \"rpc-port\": $var3,/g" /etc/transmission-daemon/settings.json
+ sudo service transmission-daemon restart
+ sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+            _mostrarResultado $opc
+                   echo ""
+                   echo "Puerto cambiado correctamente"
+                   echo ""
+            _menu
+            ;;
+        4)
+sudo chkconfig transmission-daemon on
+            _mostrarResultado $opc
+            _menu
+                        echo ""
+                        echo "TRANSMISSION ACTIVADO"
+            ;;
+        5)
+  sudo chkconfig transmission-daemon off
+            _mostrarResultado $opt
+            _menu
+                        echo ""
+                        echo "TRANSMISSION DESACTIVADO"
+            ;;
+        6)
+            _mostrarResultado $opc
+            _menu
+            ;;
+
+        *)
+            # Esta opcion se ejecuta si no es ninguna de las anteriores
+            clear
+            _menu
+            ;;
+    esac
+    read opc
+done
