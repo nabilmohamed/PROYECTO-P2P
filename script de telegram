@@ -1,0 +1,13 @@
+Para enviar un mensaje automatico $1 es el usuario y $2 el mensaje se recomienda poner el argumento del "$2" entre comillas para que no haya ningun tipo de fallo
+por ejemplo ./mensaje pepito " hola que estas haciendo? "
+
+script de telegram:
+
+#!/bin/bash
+var=$1
+var1=$2
+telegram-cli -k /home/tg/tg-server.pub -WR -e "msg $1 '$2'"
+cd /home/
+
+
+despues del -k <ruta de la clave pública>
