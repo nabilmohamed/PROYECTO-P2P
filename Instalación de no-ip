@@ -27,4 +27,6 @@ sudo /usr/local/bin/noip2" >> /etc/init.d/noip2
 sudo chmod +x /etc/init.d/noip2 
 sudo update-rc.d noip2 defaults 
 echo"SE INSTALO CORRECTAMENTE NO-IP"
+cd /home/
+
 Tarde en poner los comits esto porque no sabía como funcionaba esto
