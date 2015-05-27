@@ -1,0 +1,27 @@
+script de apache:
+
+
+#!/bin/bash
+cd /home/
+####################################
+sudo groupadd www-data
+sudo usermod -a -G www-data www-data
+sudo apt-get install apache2
+####################################
+
+touch /var/www/prueba.html
+echo ""
+
+echo "<html>
+<head>
+<title>DIYMakers</title>
+</head>
+<body>
+<h1>DIYMakers</h1>
+<p>Prueba de archivo HTML</p>
+</body>
+</html>" > /var/www/prueba.html
+echo ""
+echo "APACHE INSTALADO"
+
+cd /home/
