@@ -1,0 +1,7 @@
+script de ssh:
+
+#!/bin/bash
+cd /home/
+sudo apt-get install ssh
+echo "SSH INSTALADO"
+cd /home/
