@@ -1,0 +1,26 @@
+Ahora configurare transmission para recibir mensajes automaticos al final una descarga, me llegara a mi telegram.
+en la linea de /etc/transmission-daemon/setting.json
+linea 52 = "script-torrent-done-enabled": true, ( para activas el script )
+linea 56 = "script-torrent-done-filename": "ruta del script",
+
+mi script se llama mensajetodo.sh
+
+el script completo : 
+
+#!/bin/sh
+
+# $TR_APP_VERSION
+# $TR_TIME_LOCALTIME
+# $TR_TORRENT_DIR
+# $TR_TORRENT_HASH
+# $TR_TORRENT_ID
+# $TR_TORRENT_NAME
+
+MESSAGE="Llego el torrent #$TR_TORRENT_ID: [$TR_TORRENT_NAME] en $TR_TIME_LOCALTIME y lo guarde en $TR_TORRENT_DIR."
+
+###
+### Send the message
+###
+
+/home/mensaje.sh Nabil "$MESSAGE"
+
