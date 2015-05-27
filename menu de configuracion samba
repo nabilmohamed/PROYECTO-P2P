@@ -107,8 +107,8 @@ browsable = yes" >> /etc/samba/smb.conf
         echo "Samba desactivado"
             ;;
         8)
-            _mostrarResultado $opc
-            _menu
+           cd /home
+          ./menuprincipal.sh
             ;;
         *)
             # Esta opcion se ejecuta si no es ninguna de las anteriores
