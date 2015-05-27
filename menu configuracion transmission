@@ -38,6 +38,7 @@ do
                 sudo service transmission-daemon stop
  sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
  sed -i "s/$(head -n 51 /etc/transmission-daemon/settings.json | tail -1)/    \"rpc-username\": \"$var2\",/g" /etc/transmission-daemon/settings.json
+ sed -i "s/$(head -n 51 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"rpc-username\": \"$var2\",/g" /var/lib/transmission-daemon/info/settings.json
  sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
  sudo service transmission-daemon restart
             _mostrarResultado $opc
@@ -51,7 +52,7 @@ do
                 sudo service transmission-daemon stop
                 sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
  sed -i "s/$(head -n 48 /etc/transmission-daemon/settings.json | tail -1)/    \"rpc-password\": \"$var1\", /g" /etc/transmission-daemon/settings.json
- sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+ sed -i "s/$(head -n 48 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"rpc-password\": \"$var1\", /g" /var/lib/transmission-daemon/info/settings.json
 sudo service transmission-daemon restart
             _mostrarResultado $opc
                    echo ""
@@ -64,6 +65,7 @@ sudo service transmission-daemon restart
                 sudo service transmission-daemon stop
  sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
  sed -i "s/$(head -n 49 /etc/transmission-daemon/settings.json | tail -1)/    \"rpc-port\": $var3,/g" /etc/transmission-daemon/settings.json
+ sed -i "s/$(head -n 49 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"rpc-port\": $var3,/g" /var/lib/transmission-daemon/info/settings.json
  sudo service transmission-daemon restart
  sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
             _mostrarResultado $opc
@@ -87,8 +89,8 @@ sudo chkconfig transmission-daemon on
                         echo "TRANSMISSION DESACTIVADO"
             ;;
         6)
-            _mostrarResultado $opc
-            _menu
+		cd /home/
+		./menuprincipal.sh
             ;;
 
         *)
