@@ -1,0 +1,21 @@
+Primero todos los script estaran en /home se iran llamando uno a uno para su instalación.
+script de instalacion de todos los servicios:
+
+#!/bin/bash
+cd /home/
+sudo ./instalacionssh.sh
+cd /home/
+sudo ./instalacionapache.sh
+cd /home/
+sudo ./instalacionsamba.sh
+cd /home/
+sudo ./instalaciontrasmission.sh
+cd /home/
+sudo ./instalacionnoip.sh
+cd /home/
+sudo ./instalaciontelegram.sh
+cd /home/
+
+echo "INSTALACION COMPlETADA"
+echo ""
+echo "PARA CONFIGURAR LOS SERVICIOS ABRE EL SCRIPT /home/menuprincipal.sh"
