@@ -47,10 +47,8 @@ do
 			echo "APACHE DESACTIVADO"
             ;;
         3)
-       
-            _mostrarResultado $opc
-                   
-            _menu
+          cd /home
+          ./menuprincipal.sh
             ;;
 
         *)
