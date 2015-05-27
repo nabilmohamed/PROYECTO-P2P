@@ -1,1 +1,25 @@
 Hoy instale samba en mi rasperri la instalcion es muy facil aki esta el link de la pagina http://ubunlog.com/como-instalar-y-configurar-samba-en/ ahora me pondre con apache y el script de instalacion de todos los servicios
+
+Script de Samba :
+
+#!/bin/bash
+cd /home/
+#################################
+sudo mkdir /sambatransmision
+sudo chmod -R 775 /sambatransmision
+sudo addgroup admitidos
+#################################
+sudo apt-get install samba samba-common-bin
+ 
+ echo "[sambatransmision]
+path = /sambatransmision
+valid users = @admitidos
+guest ok = no
+writable = yes
+browsable = yes" >> /etc/samba/smb.conf
+
+sudo /etc/init.d/samba restart 
+
+echo "YA HEMOS INSTALADO SAMBA"
+
+cd /home/
