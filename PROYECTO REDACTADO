@@ -1,0 +1,1316 @@
+Administración de Sistemas Informáticos en Red
+
+
+
+
+
+Automatización de instalación de un servidor de descargar P2P
+
+
+
+
+
+NABIL MOHAMED MOHAMED
+
+
+
+INDICE.
+
+INTRODUCCION Y JUSTIFICACION ---------------------- 1
+
+OBJETIVO -------------------------------------------------------- 2
+
+ANALISIS DEL CONTENIDO Y DESARROLLO DEL CONTENIDO ------------------------------------------------- 2 – 21
+
+
+CONCLUCION Y VALORACION PERSONAL ----------- 21
+
+
+BIBLIOGRAFIA --------------------------------------------- 21 - 22
+
+
+FECHA DE TERMINACION DEL PROYECTO ------------- 22
+
+
+ANEXOS --------------------------------------------------- 22 - 36
+
+
+
+
+¿Que es la Raspberry Pi?
+
+Raspberry Pi es un ordenador de placa reducida (SBC) de bajo coste desarrollado en Reino Unido por la Fundación Raspberry Pi, con el objetivo de estimular la enseñanza de ciencias de la computación en las escuelas. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+¿Para que sirve?
+
+Cualquiera que tenga unas nociones básicas de Linux, sea capaz de identificar un problema y buscarlo en Google, podrá utilizar Raspberry Pi. Su complejidad es directamente proporcional a la ambición que se muestre en su aplicación práctica. En cualquier caso la instalación base es asequible y en Internet campan cientos de programas empaquetados que dotan a la placa de una u otra funcionalidad.
+
+Se puede hacer cualquier tipo de proyecto que tengas en mente como un simple punto de acceso WIFI hasta la robótica si te lo propones.
+
+Se pueden instalar un buen puñado de sistemas operativos, la mayoría basados en el kernel de Linux. Algunos de los más conocidos son Android, Firefox OS, Raspbian, OpenWebOS o Unix. También se pueden cargar interfaces gráficas similares a Windows, de modo que la curva de aprendizaje del sistema no es demasiado pronunciada.
+Ahora comenzare con proyecto basado en la Automatización de instalación de un        servidor de descargar P2P.
+
+Voy hacer un Script que automatice la instalación de un servidor de descargas con los servicios de Apache, Ssh, un cliente para dinámica (no-ip) y Telegram que notificara cuando se realicen correctamente las descargas de Transmission, que sera el servidor de descarga que utilizare.
+
+También creare un fichero de configuración (un menú)  con todos los servicios para poder gestionarlo, como por ejemplo activar servicio o desactivar servicio, cambiar puertos, etc.
+
+APACHE
+
+Apache es el Servidor Web más utilizado, líder con el mayor número de instalaciones a nivel mundial muy por delante de otras soluciones como el IIS (Internet Information Server) de Microsoft. Apache es un proyecto de código abierto y uso gratuito, multiplataforma (hay versiones para todos los sistemas operativos más importantes), muy robusto y que destaca por su seguridad y rendimiento. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Comenzaremos con la instalación de Apache:
+
+Para instalar apache escribiremos en la consola apt-get install apache2 después  le damos todos los permisos a la carpeta /var/www/ con chmod -R 777 /var/www.
+
+Con esto ya debería estar corriendo el demonio, para estar seguros basta con escriibir el siguiente comando sudo /etc/init.d/apache2 status. La opción status es para verificar el estado del servicio.
+
+ Las opciones que podemos utilizar son:
+
+#/etc/init.d/apache2 start (para iniciar el servicio)
+
+# /etc/init.d/apache2 stop (para detener el servicio)
+
+# /etc/init.d/apache2 restart (para reiniciar el servicio) 
+
+Una vez instalado y ejecutado el servicio podemos ver si ha funcionado accesando a la dirección del servidor. Puede ser http://127.0.0.1, http:localhost, o tu ip de red, por ejemplo 192.168.1.101. 
+
+Para conocer tu ip de red escribe el comando:
+
+#ifconfig
+
+Y normalmente estará a la derecha de inet addr. Si todo sale bien, veremos una pantalla parecida a la siguiente: 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Ahora creare un Script que se llamara menuapache.sh con echo en la que tendra 3 opciones:
+
+Activar Apache con el comando: sudo chkconfig apache2 on 
+
+Desactivar Apache con el comando: sudo chkconfig apache2 off  
+
+Salir con el comando: exit
+
+El comando chkconfig se encarga de parar servicios, activarlos, habilitarlos y deshabilitarlos. Nosotros lo que haremos es habilitar y deshabilitar este servicio.
+
+SSH
+
+SSH (Secure SHell, en español: intérprete de órdenes segura) es el nombre de un protocolo y del programa que lo implementa, y sirve para acceder a máquinas remotas a través de una red. Permite manejar por completo la computadora mediante un intérprete de comandos, y también puede redirigir el tráfico de X para poder ejecutar programas gráficos si tenemos ejecutando un Servidor X (en sistemas Unix y Windows).
+Además de la conexión a otros dispositivos, SSH nos permite copiar datos de forma segura (tanto archivos sueltos como simular sesiones FTP cifradas), gestionar claves RSA para no escribir claves al conectar a los dispositivos y pasar los datos de cualquier otra aplicación por un canal seguro tunelizado mediante SSH.
+
+
+
+
+Comenzaremos con la instalación de SSH:
+
+Para instalar SSH escribiremos en la consola sudo apt-get install ssh y comenzara instalarse el servicio. Una vez instalado ssh y quieres conectarte a otro ordenador introduzca el comando ssh “usuario”@”ip del nodo”, después te pedirá la clave de acceso del nodo en que te conectas y listo.
+
+Ahora creare un Script que se llamara menuapache.sh con echo en la que tendra 4 opciones:
+
+Activar SSH con el comando: 
+
+sudo chkconfig apache2 on 
+
+Desactivar SSH con el comando: 
+
+sudo chkconfig apache2 off 
+
+Cambiar puerto con el comando:  
+
+sed -i "s/$(head -n 39 /etc/ssh/ssh_config | tail -1)/\#   Port $var1/g" /etc/ssh/ssh_config
+
+Salir con el comando: 
+
+exit
+
+El comando sed, una de sus funciones es para sustituir cadenas de texto como sed -i “s/cadena1/cadena2/g” ruta del fichero. El comando head – n me imprime el numero de linea de texto que le indique como por ejemplo head -n 5 ruta del fichero y el comando tail -1 que lo uso por tubería me coge la última linea del texto.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+NO-IP
+
+El servicio de DNS dinámica de NO-IP permite identificar tu PC con un nombre de dominio fácil de recordar, como TuNombre.no-ip.com en lugar de con un número extraño del tipo 213.171.218.201 y poder montar un servidor sin complicaciones independientemente de si tenemos o no una IP estática. 
+
+Lo primero vamos a configurar una IP estática para tener nuestra red local perfectamente configurada. El proceso es muy simple, similar a cualquier distribución basada en Debian. Lo primero que tenemos que hacer es editar el archivo/etc/network/interfaces con nuestro editor favorito.
+Raspbian tiene varios editores instalados por defecto, el de consola es nano, no obstante en RedesZone usamos VIM, que se instala con un simple comando:
+sudo apt-get install vim
+Después comenzaremos a editar en el directorio /etc/network/interfaces:
+sudo vim /etc/network/interfaces
+Una vez que estemos dentro de cualquier editor, debemos cambiar la línea “iface eth0 inet dhcp” por “iface eth0 inet static“. 
+Y justo debajo de dicha línea ponemos nuestra configuración, debemos tener en cuenta la sintaxis a usar y qué significa cada parámetro:
+address (dirección IP fija que queramos).
+netmask (máscara de red).
+network (subred a la que nos conectaremos).
+broadcast (dirección de difusión).
+gateway (IP del router o de la puerta de enlace).
+Por ejemplo:
+auto eth0
+iface eth0 inet static
+address 192.168.x.x
+netmask 255.255.255.0
+gateway 192.168.x.1
+Después reiniciamos con /etc/init.d/networking restart.
+Ahora instalaremos no-ip. Lo primero que tenemos que hacer es registrarnos una cuenta gratuita de No-IP tal y como os enseñamos en este manual. A continuación debemos instalar el DUC y configurarlo en Raspbian. 
+Primero crearemos la carpeta en la que nos descargaremos los archivos:
+sudo mkdir /descarganp
+Despues entramos a la carpeta en la que vamos a descargarnos no-ip:
+cd /descarganp
+Ejecutamos el comando para descargar el archivo:
+sudo wget http://www.no-ip.com/client/linux/noip-duc-linux.tar.gz
+
+Ejecutamos el comando para descomprimir:
+
+ tar -zxvf noip-duc-linux.tar.gz
+
+Entramos en la carpeta que se descomprimió:
+
+ cd nombre_carpeta_descomprimida/
+
+Comenzamos con la compilación:
+
+Primero:  make
+Segundo: sudo make install
+Durante la instalación nos preguntará usuario, contraseña del servicio (recordad que debemos registrarnos) y tiempo de intervalo de refresco, ajustamos lo que nosotros queramos. Una vez instalado borramos la carpeta ya que no nos hará falta:        
+rm .rf /descarganp
+
+Ahora que ya tenemos nuestro No-IP instalado, tenemos que configurarlo para que se inicie cada vez que encendamos nuestra Raspberry PI, por tanto, tenemos que crear un “script” para agregar a los servicios que se inician con el sistema operativo. 
+
+
+Creamos un fichero /etc/init.d/noip2 con nuestro editor favorito, en nuestro caso:
+sudo vim /etc/init.d/noip2
+El contenido del archivo sera:
+#! /bin/bash
+### BEGIN INIT INFO
+# Provides: blabla
+# Required-Start: $syslog
+# Required-Stop: $syslog
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: blabla
+# Description:
+#
+### END INIT INFO
+sudo /usr/local/bin/noip2
+Despues asignamos permisos de ejecución con: 
+sudo chmod +x /etc/init.d/noip2
+Y acabamos con:
+sudo update-rc.d noip2 defaults 
+Ahora creare un Script que se llamara menuapache.sh con echo en la que tendra 4 opciones:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Activar NO-IP con el comando: 
+
+sed -i "12d" /etc/init.d/noip2
+
+echo "sudo /usr/local/bin/noip2" >> /etc/init.d/noip2
+
+El comando sed, una de sus funciones es para sustituir y también eliminar, en este caso elimino la linea de texto 12 y con echo le inserto el siguiente texto “ sudo /usr/local/bin/noip2” para activar el script, q se activara una vez reiniciado el sistema.
+
+Desactivar NO-IP con el comando: 
+
+sed -i "12d" /etc/init.d/noip2
+
+echo "#sudo /usr/local/bin/noip2" >> /etc/init.d/noip2
+
+El comando sed, una de sus funciones es para sustituir y también eliminar, en este caso elimino la linea de texto 12 y con echo le inserto el siguiente texto “ #sudo /usr/local/bin/noip2” para desactivar el script con la “#” una vez reiniciado el sistema.
+
+Salir con el comando: 
+exit
+
+ TRANSMISSION
+Transmission ha ganado un especial éxito en sistemas operativos Linux, por ejemplo, Ubuntu o Debian donde la mayor parte de los usuarios lo utilizan como predeterminado. Gracias a ello, el cliente se ha ido extendiendo y dando a conocer por si solo a la vez que expandiéndose por más sistemas operativos hasta llegar a ser una auténtica alternativa para los usuarios que utilizan la red torrent. 
+Transmission es compatible, por defecto, con sistemas Linux (Ubuntu, Debian, Open Suse, Gentoo…), con Mac OS X y con múltiples dispositivos integrados como NAS y discos duros. También existe un port no oficial para Windows de este cliente torrent, por lo que todos los usuarios, independientemente del sistema operativo, podrán utilizarlo. 
+Transmission es de código abierto, por lo que también podemos descargar el código fuente y analizarlo o modificarlo a nuestro gusto. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Comenzaremos con la instalación de Transmission:
+
+Primero instalaremos los paquetes con el comando:
+
+sudo apt-get install transmission-daemon
+
+Y ahora dependiendo de lo que tengamos instalado, nos instalará cosas adicionales, entre las que con casi total seguridad estarán transmission-cli y transmission-common. 
+
+Al terminar de instalarse se configura más o menos y empieza a funcionar. Así que ahora nosotros paramos el servidor de torrents. 
+
+sudo service transmission-daemon stop
+
+Y ahora como siempre y para prevenir hacemos una copia de seguridad del fichero de configuración. Y luego comprobamos que se ha copiado con ls.
+
+sudo cp /etc/transmission-daemon/settings.json transmission-old-settings.json
+
+Ahora con los siguientes comandos cambiare algunas configuraciones que explicare paso a paso :
+
+sed -i "s/$(head -n 24 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"incomplete-dir-enabled\": true,/g" /var/lib/transmission-daemon/info/settings.json
+
+sed -i "s/$(head -n 24 /etc/transmission-daemon/settings.json | tail -1)/    \"incomplete-dir-enabled\": true,/g" /etc/transmission-daemon/settings.json
+
+En este comando busca la linea 24 y lo pone en true. Si lo ponemos verdadero le indicamos que guarde las partes de los torrents descargados en una carpeta diferente a los archivos finalizados 
+
+sed -i "s/$(head -n 52 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"rcp-whitelist\": \"0.0.0.0\",/g" /var/lib/transmission-daemon/info/settings.json
+
+sed -i "s/$(head -n 52 /etc/transmission-daemon/settings.json | tail -1)/    \"rcp-whitelist\": \"0.0.0.0\",/g" /etc/transmission-daemon/settings.json
+
+Este comando busca la linea 52 que por defecto viene a 127.0.0.1 si lo ponemos a 0.0.0.0 indicamos que cualquiera puede conectarse. 
+
+
+
+sed -i "s/$(head -n 53 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"rcp-whitelist-enabled\": false,/g" /var/lib/transmission-daemon/info/settings.json
+
+sed -i "s/$(head -n 53 /etc/transmission-daemon/settings.json | tail -1)/    \"rcp-whitelist-enabled\": false,/g" /etc/transmission-daemon/settings.json
+
+Este comando busca la linea 53 y lo ponemos en false. Esto habilita una lista de direcciones que pueden acceder mediante RPC por ejemplo la web. 
+
+sed -i "s/$(head -n 55 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"script-torrent-done-enabled\": true,/g" /var/lib/transmission-daemon/info/settings.json
+sed -i "s/$(head -n 55 /etc/transmission-daemon/settings.json | tail -1)/    \"script-torrent-done-enabled\": true,/g" /etc/transmission-daemon/settings.json
+
+Este comando busca la linea 55 y lo pone en true para que pueda Transmission ejecutar el Script que le ponga a continuación.
+
+sed -i "s/$(head -n 56 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"script-torrent-done-filename\": \"/home/mensajetodo.sh\",/g" /var/lib/transmission-daemon/info/settings.json
+
+sed -i "s/$(head -n 56 /etc/transmission-daemon/settings.json | tail -1)/    \"script-torrent-done-filename\": \"/home/mensajetodo.sh\",/g" /etc/transmission-daemon/settings.json 
+
+Este comando busca la linea 56 y le indica la ruta del Script a ejecutar.
+
+echo "USER=root" >> /etc/default/transmission-daemon
+
+Este comando inserta en el menú de configuración de Transmission un usuario como root o pi el usuario que vaya utilizar este servicio para que no tenga problemas de permisos a la hora de descargar cualquier torrent.
+
+sudo chown -R pi:debian-transmission /var/lib/transmission-daemon/downloads
+
+Este comando le da permisos de usuario a pi sobre la configuración de Transmission.
+
+sudo chown -R root:debian-transmission /var/lib/transmission-daemon/downloads
+
+Este comando le da permisos de usuario a root sobre la configuración de Transmission.
+
+sudo chmod -R 777 /var/lib/transmission-daemon/downloads
+
+Este comando da permiso en modo recursivo de esta carpeta para cualquier usuario que quiera eliminar, escribir, leer, ejecutar.
+
+Ahora iniciamos Transmission con el comando:
+
+sudo /etc/init.d/transmission-daemon start
+
+Ya podemos iniciar Transmission por la web https://192.168.1.x:9091 o con el no-ip y tambien con la aplicación remota desde el móvil.
+
+
+Ahora creare un Script que se llamara menutransmission.sh con echo en la que tendra 6 opciones:
+
+Cambiar nombre de usuario con el comando:
+
+read -p "Nuevo nombre de usuario: " var2
+sudo service transmission-daemon stop
+sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+sed -i "s/$(head -n 51 /etc/transmission-daemon/settings.json | tail -1)/    \"rpc-  username\": \"$var2\",/g" /etc/transmission-daemon/settings.json
+sed -i "s/$(head -n 51 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"rpc-username\": \"$var2\",/g" /var/lib/transmission-daemon/info/settings.json
+ sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+ sudo service transmission-daemon restart
+
+El read -p cojera la variable, después paro el servicio con el sed cambia el nombre de  usuario y después iniciara los servicios de Transmission.
+
+Cambiar contraseña con el comando:
+
+read -p "Nueva contraseña: " var1
+sudo service transmission-daemon stop
+sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+sed -i "s/$(head -n 48 /etc/transmission-daemon/settings.json | tail -1)/    \"rpc-password\": \"$var1\", /g" /etc/transmission-daemon/settings.json
+sed -i "s/$(head -n 48 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"rpc-password\": \"$var1\", /g" /var/lib/transmission-daemon/info/settings.json
+sudo service transmission-daemon restart
+
+El read -p cojera la variable, después paro el servicio con el sed cambia la contraseña  y después iniciara los servicios de Transmission.
+
+Cambiar puerto con el comando:
+
+read -p "Nuevo puerto: " var3
+sudo service transmission-daemon stop
+sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+sed -i "s/$(head -n 49 /etc/transmission-daemon/settings.json | tail -1)/    \"rpc-port\": $var3,/g" /etc/transmission-daemon/settings.json
+sed -i "s/$(head -n 49 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"rpc-port\": $var3,/g" /var/lib/transmission-daemon/info/settings.json
+  sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+sudo service transmission-daemon restart
+
+El read -p cojera la variable, después paro el servicio con el sed cambia el puerto y después iniciara los servicios de Transmission.
+
+Activar Transmission con el comando:
+
+sudo chkconfig transmission-daemon on
+
+Desactivar Transmission con el comando :
+
+sudo chkconfig transmission-daemon off
+
+Salir con el comando:
+
+exit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SAMBA
+
+Samba son un conjunto de aplicaciones para Linux, que implementan el protocolo de comunicación SMB utilizado por los sistemas operativos Microsoft Windows para compartir carpetas e impresoras.
+Básicamente samba permite a PCs que utilizan Linux, conectarse a carpetas compartidas en PCs con Windows y compartir carpetas como si de un sistema Windows se tratara. Gracias a samba, en una red podemos tener PCs con Windows y PCs con Linux de forma que puedan intercambiar información en carpetas compartidas de la misma forma que se haría si todos los PCs fueran Windows.
+
+Cuando en una misma red conviven sistemas Unix con equipos Windows, se utiliza  samba para integrarlos y poder intercambiar información. Como alternativa, sería posible utilizar protocolos estándar como el ftp que es utilizado tanto equipos Windows como equipos Linux.
+Hay una gran variedad de configuraciones de Samba que pueden ser:
+Globales
+check password script: permite definir un script que verificará la complejidad de la contraseña definida, retornando 0 si es aprobada por el programa indicado
+debug uid : permite registrar los uid, gid, euid y egid del usuario que solicita un recurso en el log del servidor
+
+domain master : habilita a nmbd con un nombre NetBios específico que lo identifica como maestro de dominio del grupo de trabajo indicado
+guest account: usuario utilizado para acceder a los recursos que tienen definido "guest ok"
+include: incluye otro archivo de configuración complementario
+debuglevel o log level : permite definir el nivel de detalle del log; incluso por módulo: all ,tdb ,printdrivers ,lanman ,smb ,rpc_parse ,rpc_srv ,rpc_cli ,passdb ,sam ,auth ,winbind ,vfs ,idmap ,quota ,acls ,locking ,msdfs ,dmapi ,registry
+map to guest : le indica al servidor la acción a tomar cuando falla el inicio de sesión de un usuario. inútil en security = share o server
+max log size : tamaño máximo del log
+message command : le indica al servidor la acción al recibir un mensaje tipo WinPopup
+netbios name : nombre netbios del servidor samba
+null passwords : permite el acceso a usuarios con contraseñas vacías
+panic action : comando a realizar al caerse smbd o nmbd
+prefered master o preferred master : indica si samba es preferencialmente maestro en el grupo de trabajo
+security : determina cómo los clientes responden el logeo (usuario y contraseña) según el "security mode bit" enviado en las negociaciones de protocolo.
+Share : clientes se registran al solicitar un recurso (permite ver la lista de recursos para visitas)
+user : clientes se registran al solicitar la lista de recursos o solicitar un recurso
+domain : idéntico al anterior, pero los datos de registro se consultan con controlador de dominio
+server : idéntico al anterior, pero los datos de registro se consultan con servidor SMB
+server string : texto desplegado como nombre completo del servidor
+usershares
+Parámetros de configuración aplicables a las carpetas compartidas a través de nautilus ("Opciones de compartición"):
+usershare allow guests : las carpetas compartidas serán accedidas por los usuarios sin registrarse
+usershare max shares : número máximo de carpetas compartidas por usuario
+usershare owner only : permite compartir sólo las carpetas pertenecientes al usuario
+usershare path : ruta donde se almacenan las carpetas compartidas por cada usuario (los permisos de la carpeta indicada controlan quienes pueden compartir a través de este medio)
+usershare prefix allow list : lista separada por comas de las rutas absolutas permitidas para compartir (incluye directorios dentro de estas rutas)
+usershare prefix deny list : lista separada por comas de las rutas absolutas no permitidas para compartir (incluye directorios dentro de estas rutas)
+Recursos
+administrative share : recurso administrativo. creado por defecto en sistemas MS. Por Ejemplo: C$ , D$ , IPC$.
+admin users : lista de usuarios con total permiso sobre los recursos (no aplica si secury = share)
+browsable o browseable : define si el recurso es apreciable en la lista de recursos del servidor
+comment : permite definir un comentario aplicado al recurso, desplegable en los recursos de toda la red; a través de net view o de smbclient
+create mode o create mask : permite restringir los permisos de los archivos/directorios creados en un recurso a través de una máscara de permisos
+force create mode : permite aplicar permisos a los archivos/directorios creados en un recurso
+directory mode o directory mask : similar a create mode o create mask, aplicado a directorios
+force directory mode : similar a force create mode, aplicado a directorios
+directory security mask : mascara de permisos aplicado a clientes Windows NT.
+Group o force group : grupo utilizado como gid del usuario conectado
+user o force user : usuario utilizado como uid del usuario conectado
+guest ok : permite acceder a un recurso sin identificarse
+only guest o guest only : permite acceder sólo a usuarios sin identificación. requiere el parámetro "guest ok"
+allow hosts o hosts allow : lista de equipos permitidos de acceder al recurso. puede aplicar como global
+deny hosts o hosts deny : lista de equipos no permitidos de acceder al recurso. puede aplicar como global
+invalid users : lista de usuarios no permitidos de acceder al recurso
+only user : permite el acceso sólo a los usuarios en la lista user
+directory o path : ruta del recurso indicado
+read list : lista de usuarios que tienen acceso de sólo lectura
+read only o writeable : no se permite crear ni modificar los archivos/directorios del recurso
+user ,users o username : usuarios con los cuales se probará la contraseña entregada
+valid users : lista de usuarios permitidos de acceder al recurso
+invalid users : lista de usuarios no permitidos de acceder al recurso
+writable o writeable : permite escribir/modificar en el recurso indicado
+de impresión
+print ok o printable : clientes pueden enviar trabajos de impresión a la carpeta indicada
+printer o printer name : nombre de la impresora a la cual serán enviados los trabajos
+
+
+
+
+Este es mi Script de instalación de samba, instalacionsamba.sh:
+
+#!/bin/bash
+cd /home/
+#################################
+sudo mkdir /sambatransmision
+sudo chmod -R 777 /sambatransmision
+sudo addgroup admitidos
+#################################
+sudo apt-get install samba samba-common-bin
+ echo "[sambatransmision]
+path = /sambatransmision
+valid users = @admitidos
+guest ok = no
+writable = yes
+browsable = yes" >> /etc/samba/smb.conf
+sudo /etc/init.d/samba restart 
+echo "YA HEMOS INSTALADO SAMBA"
+cd /home/
+
+Ahora creare un Script que se llamara menusamba.sh con echo en la que tendra 8 opciones:
+
+Cambiar ruta del directorio con el comando: 
+
+read -p "Ruta del directorio nuevo: " var2
+sed -i "335,339d" /etc/samba/smb.conf
+echo "path = $var2
+valid users = @admitidos
+guest ok = no
+writable = yes
+browsable = yes" >> /etc/samba/smb.conf
+sudo /etc/init.d/samba restart
+
+El comando read -p coge la variable mientras que el sed elimina las lineas indicadas y el echo inserta el nuevo directorio. Después se reinicia los servicios de samba. Se debe de tener en cuenta que las carpetas tendras que darles permisos 777 en el sistema antes de todo.
+
+Añadir un usuario al directorio con el comando: 
+
+ read -p "Nombre del usuario a añadir al directorio: " var3
+ sudo addgroup admitidos $var3
+ sudo /etc/init.d/samba restart
+
+El comando read -p coge la variable el otro comando añade al grupo admitidos al usuario y al estar en ese grupo podrá acceder a ese directorio y después se reinicia los servicios.
+
+Quitar un usuario del directorio con el comando:  
+
+ read -p "Nombre del usuario a añadir al directorio: " var3
+ sudo delgroup admitidos $var3
+ sudo /etc/init.d/samba restart
+
+El comando read -p coge la variable el otro comando quita al usuario del grupo admitidos al estar fuera de  ese grupo no podrá acceder a ese directorio y después se reinicia los servicios.
+
+Añadir un usuario al sistema Samba con el comando:
+
+read -p "Nombre del usuario a añadir al sistema Samba: " var5
+sudo smbpasswd -a $var5 
+
+El comando read -p coge la variable y el otro comando añade el usuario del sistema al sistema de Samba, después escribirá  una contraseña que quieras poner y reiniciara los servicios.
+
+
+
+Eliminar un usuario del sistema Samba con el comando:
+
+read -p "Nombre del usuario a añadir al sistema Samba: " var5
+sudo smbpasswd -x $var5 
+
+El comando read -p coge la variable y el otro comando  quita del sistema de Samba al usuario que hayamos puesto después escribirá la contraseña del usuario y reiniciara los servicios. 
+
+Activar Samba con el comando:
+
+sudo chkconfig smbd on
+
+Desactivar Samba con el comando:
+
+sudo chkconfig smbd off
+
+Salir con el comando:
+
+exit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TELEGRAM
+
+Telegram es un gestor de mensaje como whatsapp pero de código abierto con el cual nos enviaremos mensajes de texto al realizar una descarga correctamente con transmission.
+
+Ahora comenzare con la instalación de Telegram o bien el Script de instalación que son los mismos pasos:
+
+
+
+Script instalaciontelegram.sh :
+
+#!/bin/bash
+cd /home
+sudo git clone --recursive https://github.com/vysheng/tg.git && cd tg
+sudo apt-get install libreadline-dev libconfig-dev libssl-dev lua5.2 liblua5.2-dev libevent-dev libjansson-dev make
+sudo ./configure
+sudo make
+sudo cp tg-server.pub tg-server.pub.copia
+sudo bin/telegram-cli -k tg-server.pub
+
+Una vez hecho nos pedirá el numero de teléfono por ejemplo +34654987456 y después recibiremos un código a nuestro móvil, le insertamos el código de activación y listo.
+
+Script de mensaje automatico mensaje.sh:
+
+#!/bin/bash
+var=$1
+var1=$2
+telegram-cli -k /home/tg/tg-server.pub -WR -e "msg $1 '$2'"
+cd /home/
+
+Lo ejecuto ./mensaje.sh Nabil “hola que tal” y recibiria el mensaje a mi telegram.
+
+
+
+Conclusión y valoración personal.
+
+Es un proyecto interesante con el cual he aprendido mucho sobre P2P, Telegram, Samba, etc. Este proyecto de p2p tiene una gran ventaja que es la facilidad de descargas  a gran velocidad y con la comodidad de descargarlo desde el móvil y mediante Samba compartir los archivos en la red local y unas de las desventajas es que el servidor de P2P tiene que recurrir a webs externas para poder localizar material para descargar. 
+
+Bibliografía :
+
+https://www.raspberrypi.org/forums/viewtopic.php?t=13345
+http://www.redeszone.net/raspberry-pi/no-ip/
+http://raspberryparatorpes.net/proyectos/instalar-y-configurar-un-descargador-de-torrents/
+https://www.youtube.com/watch?v=uoOIPAR_jxQ
+http://www.electroensaimada.com/no-ip.html
+http://rsppi.blogspot.com.es/2013/01/envio-de-emails-desde-consola-y-con.html
+http://posts.danharper.me/raspberry-pi-2-transmission/
+
+
+FINALIZACION DEL PROYECTO: VIERNES, 29 DE MAYO DEL 2015
+
+
+ANEXOS
+
+Instalacion samba
+
+#!/bin/bash
+cd /home/
+#################################
+sudo mkdir /sambatransmision
+sudo chmod -R 775 /sambatransmision
+sudo addgroup admitidos
+#################################
+sudo apt-get install samba samba-common-bin
+ 
+ echo "[sambatransmision]
+path = /sambatransmision
+valid users = @admitidos
+guest ok = no
+writable = yes
+browsable = yes" >> /etc/samba/smb.conf
+
+sudo /etc/init.d/samba restart 
+
+echo "YA HEMOS INSTALADO SAMBA"
+
+cd /home/
+
+Instalacion ssh
+
+#!/bin/bash
+cd /home/
+#################################
+sudo mkdir /sambatransmision
+sudo chmod -R 775 /sambatransmision
+sudo addgroup admitidos
+#################################
+sudo apt-get install samba samba-common-bin
+ 
+ echo "[sambatransmision]
+path = /sambatransmision
+valid users = @admitidos
+guest ok = no
+writable = yes
+browsable = yes" >> /etc/samba/smb.conf
+
+sudo /etc/init.d/samba restart 
+
+echo "YA HEMOS INSTALADO SAMBA"
+
+cd /home/
+
+Instalación transmission.
+
+#!/bin/bash
+cd /home/
+#################################
+sudo mkdir /sambatransmision
+sudo chmod -R 775 /sambatransmision
+sudo addgroup admitidos
+#################################
+sudo apt-get install samba samba-common-bin
+ 
+ echo "[sambatransmision]
+path = /sambatransmision
+valid users = @admitidos
+guest ok = no
+writable = yes
+browsable = yes" >> /etc/samba/smb.conf
+
+sudo /etc/init.d/samba restart 
+
+echo "YA HEMOS INSTALADO SAMBA"
+
+cd /home/
+
+Instalación Telegram
+
+#!/bin/bash
+cd /home
+sudo git clone --recursive https://github.com/vysheng/tg.git && cd tg
+sudo apt-get install libreadline-dev libconfig-dev libssl-dev lua5.2 liblua5.2-dev libevent-dev libjansson-dev make
+sudo ./configure
+sudo make
+sudo cp tg-server.pub tg-server.pub.copia
+sudo bin/telegram-cli -k tg-server.pub
+
+Instalación no-ip 
+
+#!/bin/bash
+cd /home
+echo "SE INICIARA LA INSTALACION DE NO-IP"
+echo
+mkdir /home/descargaNP
+cd /home/descargaNP
+wget http://www.no-ip.com/client/linux/noip-duc-linux.tar.gz
+tar -zxvf noip-duc-linux.tar.gz
+cd noip-2.1.9-1/
+make
+sudo make install
+echo
+echo "#! /bin/bash
+### BEGIN INIT INFO
+# Provides: blabla
+# Required-Start: $syslog
+# Required-Stop: $syslog
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: blabla
+# Description:
+#
+### END INIT INFO
+sudo /usr/local/bin/noip2" >> /etc/init.d/noip2
+sudo chmod +x /etc/init.d/noip2
+sudo update-rc.d noip2 defaults
+echo"SE INSTALO CORRECTAMENTE NO-IP"
+
+Instalación Apache 
+
+#!/bin/bash
+cd /home/
+####################################
+sudo groupadd www-data
+sudo usermod -a -G www-data www-data
+sudo apt-get install apache2
+####################################
+
+touch /var/www/prueba.html
+echo ""
+
+echo "<html>
+<head>
+<title>DIYMakers</title>
+</head>
+<body>
+<h1>DIYMakers</h1>
+<p>Prueba de archivo HTML</p>
+</body>
+</html>" > /var/www/prueba.html
+echo ""
+echo "APACHE INSTALADO"
+
+cd /home/
+
+Script de instalación
+
+#!/bin/bash
+cd /home/
+sudo ./instalacionssh.sh
+cd /home/
+sudo ./instalacionapache.sh
+cd /home/
+sudo ./instalacionsamba.sh
+cd /home/
+sudo ./instalaciontrasmission.sh
+cd /home/
+sudo ./instalacionnoip.sh
+cd /home/
+sudo ./instalaciontelegram.sh
+cd /home/
+
+echo "INSTALACION COMPlETADA"
+echo ""
+echo "PARA CONFIGURAR LOS SERVICIOS ABRE EL SCRIPT /home/menuprincipal.sh"
+
+
+
+
+menú Transmisión 
+
+#!/bin/bash
+
+# Muestra el menu general
+_menu()
+{
+    echo "Selecciona una opcion:"
+    echo
+    echo "1) Cambiar nombre de usuario"
+    echo "2) Cambiar contraseña de usuario"
+    echo "3) Cambiar puerto"
+    echo "4) Activar Transmission"
+    echo "5) Desactivar Transmission"
+    echo "6) Volver al menu principal"
+    echo "7) Salir"
+    echo -n "Indica una opcion: "
+}
+
+# Muestra la opcion seleccionada del menu
+_mostrarResultado()
+{
+    clear
+    echo ""
+    echo "------------------------------------"
+    echo "Has seleccionado la opcion $1"
+    echo "------------------------------------"
+    echo ""
+}
+
+# opcion por defecto
+opc="0"
+
+# bucle mientas la opcion indicada sea diferente de 9 (salir)
+until [ "$opc" -eq "7" ];
+do
+    case $opc in
+        1)
+                read -p "Nuevo nombre de usuario: " var2
+                sudo service transmission-daemon stop
+ sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+ sed -i "s/$(head -n 51 /etc/transmission-daemon/settings.json | tail -1)/    \"rpc-username\": \"$var2\",/g" /etc/transmission-daemon/settings.json
+ sed -i "s/$(head -n 51 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"rpc-username\": \"$var2\",/g" /var/lib/transmission-daemon/info/settings.json
+ sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+ sudo service transmission-daemon restart
+            _mostrarResultado $opc
+                   echo ""
+                   echo "Nombre de usuario cambiado correctamente"
+                   echo ""
+            _menu
+            ;;
+        2)
+        read -p "Nueva contraseña: " var1
+                sudo service transmission-daemon stop
+                sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+ sed -i "s/$(head -n 48 /etc/transmission-daemon/settings.json | tail -1)/    \"rpc-password\": \"$var1\", /g" /etc/transmission-daemon/settings.json
+ sed -i "s/$(head -n 48 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"rpc-password\": \"$var1\", /g" /var/lib/transmission-daemon/info/settings.json
+sudo service transmission-daemon restart
+            _mostrarResultado $opc
+                   echo ""
+                   echo "Contraseña cambiada correctamente"
+                   echo ""
+            _menu
+            ;;
+        3)
+        read -p "Nuevo puerto: " var3
+                sudo service transmission-daemon stop
+ sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+ sed -i "s/$(head -n 49 /etc/transmission-daemon/settings.json | tail -1)/    \"rpc-port\": $var3,/g" /etc/transmission-daemon/settings.json
+ sed -i "s/$(head -n 49 /var/lib/transmission-daemon/info/settings.json | tail -1)/    \"rpc-port\": $var3,/g" /var/lib/transmission-daemon/info/settings.json
+ sudo chmod -R 777 /var/lib/transmission-daemon/info/settings.json
+ sudo service transmission-daemon restart
+ 
+            _mostrarResultado $opc
+                   echo ""
+                   echo "Puerto cambiado correctamente"
+                   echo ""
+            _menu
+            ;;
+        4)
+sudo chkconfig transmission-daemon on
+            _mostrarResultado $opc
+            _menu
+                        echo ""
+                        echo "TRANSMISSION ACTIVADO"
+            ;;
+        5)
+  sudo chkconfig transmission-daemon off
+            _mostrarResultado $opt
+            _menu
+                        echo ""
+                        echo "TRANSMISSION DESACTIVADO"
+            ;;
+        6)
+		cd /home/
+		./menuprincipal.sh
+            ;;
+
+        *)
+            # Esta opcion se ejecuta si no es ninguna de las anteriores
+            clear
+            _menu
+            ;;
+    esac
+    read opc
+done
+
+menú ssh
+
+#!/bin/bash
+
+# Muestra el menu general
+_menu()
+{
+    echo "Selecciona una opcion:"
+    echo
+    echo "1) Activar SSH"
+    echo "2) Desactivar SSH"
+	echo "4) Cambiar puerto"
+    echo "5) Volver al menu principal"
+    echo "6) Salir"
+    echo -n "Indica una opcion: "
+}
+
+# Muestra la opcion seleccionada del menu
+_mostrarResultado()
+{
+    clear
+    echo ""
+    echo "------------------------------------"
+    echo "Has seleccionado la opcion $1"
+    echo "------------------------------------"
+    echo ""
+}
+
+# opcion por defecto
+opc="0"
+
+# bucle mientas la opcion indicada sea diferente de 9 (salir)
+until [ "$opc" -eq "4" ];
+do
+    case $opc in
+        1)
+           sudo chkconfig ssh on
+            _mostrarResultado $opc
+                
+            _menu
+			echo ""
+			echo "SSH ACTIIVADO"
+            ;;
+        2)
+      sudo chkconfig ssh off
+            _mostrarResultado $opc
+         
+            _menu
+			echo ""
+			echo "SSH DESACTIVADO"
+            ;;
+        3)
+			read -p "Nuevo puerto: " var1
+			sed -i "s/$(head -n 39 /etc/ssh/ssh_config | tail -1)/\#   Port $var1/g" /etc/ssh/ssh_config
+			service ssh restart
+			_mostrarResultado $opc
+                
+            _menu
+            ;;
+	
+        4)
+			cd /home/
+			./menuprincipal.sh
+            ;;
+
+        *)
+            # Esta opcion se ejecuta si no es ninguna de las anteriores
+            clear
+            _menu
+            ;;
+    esac
+    read opc
+done
+
+menú Samba 
+
+#!/bin/bash
+
+# Muestra el menu general
+_menu()
+{
+    echo "Selecciona una opcion:"
+    echo
+    echo "1) Cambiar ruta del directorio"
+    echo "2) Añadir un usuario al directorio"
+    echo "3) Quitar un usuario del directorio"
+    echo "4) Añadir usuario al sistema Samba"
+    echo "5) Eliminar usuario del sistema Samba"
+    echo "6) Activar Samba"
+    echo "7) Desactivar Samba"
+    echo "8) Volver al menu principal"
+    echo "9) Salir"
+    echo -n "Indica una opcion: "
+}
+
+# Muestra la opcion seleccionada del menu
+_mostrarResultado()
+{
+    clear
+    echo ""
+    echo "------------------------------------"
+    echo "Has seleccionado la opcion $1"
+    echo "------------------------------------"
+    echo ""
+}
+
+# opcion por defecto
+opc="0"
+
+# bucle mientas la opcion indicada sea diferente de 9 (salir)
+until [ "$opc" -eq "9" ];
+do
+    case $opc in
+        1)
+        read -p "Ruta del directorio nuevo: " var2
+        sed -i "335,339d" /etc/samba/smb.conf
+echo "path = $var2
+valid users = @admitidos
+guest ok = no
+writable = yes
+browsable = yes" >> /etc/samba/smb.conf
+        sudo /etc/init.d/samba restart
+        echo
+            _mostrarResultado $opc
+            echo "Direcorio $var2 con exito"
+        echo ""
+        echo ""
+            _menu
+            ;;
+        2)
+        read -p "Nombre del usuario a añadir al directorio: " var3
+        sudo addgroup admitidos $var3
+        sudo /etc/init.d/samba restart
+            _mostrarResultado $opc
+                echo "El usuario $var3 añadido con exito al directorio"
+                echo ""
+                echo ""
+            _menu
+            ;;
+        3)
+        read -p "Nombre del usuario a quitar del directorio: " var4
+        sudo delgroup admitidos $var4
+        sudo /etc/init.d/samba restart
+            _mostrarResultado $opc
+        echo "Usuario $var4 quitado con exito del directorio"
+        echo ""
+        echo ""
+            _menu
+            ;;
+        4)
+        read -p "Nombre del usuario a añadir al sistema Samba: " var5
+        sudo smbpasswd -a $var5
+        sudo /etc/init.d/samba restart
+            _mostrarResultado $opc
+        echo "Usuario $var5 añadido al sistema Samba correctamente"
+        echo ""
+        echo ""
+            _menu
+            ;;
+        5)
+        read -p "Nombre del usuarioa a eliminar del sistema Samba: " var6
+        sudo smbpasswd -x $var6
+        sudo /etc/init.d/samba restart
+            _mostrarResultado $opc
+        echo "Usuario $var6 fue eliminado correctamente del sistema Samba"
+        echo ""
+        echo ""
+            _menu
+            ;;
+        6)
+        sudo chkconfig smbd on
+            _mostrarResultado $opc
+            _menu
+                echo""
+        echo "Samba activado"
+            ;;
+        7)
+        sudo chkconfig smbd off
+            _mostrarResultado $opc
+            _menu
+                echo ""
+        echo "Samba desactivado"
+            ;;
+        8)
+            cd /home
+			./menuprincipal.sh
+            ;;
+        *)
+            # Esta opcion se ejecuta si no es ninguna de las anteriores
+            clear
+            _menu
+            ;;
+    esac
+    read opc
+done
+
+menú no-ip
+
+!/bin/bash
+
+# Muestra el menu general
+_menu()
+{
+    echo "Selecciona una opcion:"
+    echo
+    echo "1) Activar No-ip"
+    echo "2) Desactivar No-ip"
+    echo "3) Volver al menu principal"
+    echo "4) Salir"
+    echo -n "Indica una opcion: "
+}
+
+# Muestra la opcion seleccionada del menu
+_mostrarResultado()
+{
+    clear
+    echo ""
+    echo "------------------------------------"
+    echo "Has seleccionado la opcion $1"
+    echo "------------------------------------"
+    echo ""
+}
+
+# opcion por defecto
+opc="0"
+
+# bucle mientas la opcion indicada sea diferente de 9 (salir)
+until [ "$opc" -eq "4" ];
+do
+    case $opc in
+        1)
+          sed -i "12d" /etc/init.d/noip2
+		  echo "sudo /usr/local/bin/noip2" >> /etc/init.d/noip2
+		  
+            _mostrarResultado $opc
+                
+            _menu
+			echo ""
+			echo "NO-IP ACTIIVADO"
+            ;;
+        2)
+		  sed -i "12d" /etc/init.d/noip2
+		  echo "#sudo /usr/local/bin/noip2" >> /etc/init.d/noip2
+            _mostrarResultado $opc
+         
+            _menu
+			echo ""
+			echo "REINICIA EL SISTEMA PARA QUE SE DESACTIVA NO-IP"
+            ;;
+     
+        3)
+			cd /home/
+			./menuprincipal.sh
+            ;;
+
+        *)
+            # Esta opcion se ejecuta si no es ninguna de las anteriores
+            clear
+            _menu
+            ;;
+    esac
+    read opc
+done
+
+menú Apache
+
+#!/bin/bash
+
+# Muestra el menu general
+_menu()
+{
+    echo "Selecciona una opcion:"
+    echo
+    echo "1) Activar Apache"
+    echo "2) Desactivar Apache"
+    echo "3) Volver al menu principal"
+    echo "4) Salir"
+    echo -n "Indica una opcion: "
+}
+
+# Muestra la opcion seleccionada del menu
+_mostrarResultado()
+{
+    clear
+    echo ""
+    echo "------------------------------------"
+    echo "Has seleccionado la opcion $1"
+    echo "------------------------------------"
+    echo ""
+}
+
+# opcion por defecto
+opc="0"
+
+# bucle mientas la opcion indicada sea diferente de 9 (salir)
+until [ "$opc" -eq "4" ];
+do
+    case $opc in
+        1)
+           sudo chkconfig apache2 on
+            _mostrarResultado $opc
+                
+            _menu
+			echo ""
+			echo "APACHE ACTIIVADO"
+            ;;
+        2)
+      sudo chkconfig apache2 off
+            _mostrarResultado $opc
+         
+            _menu
+			echo ""
+			echo "APACHE DESACTIVADO"
+            ;;
+        3)
+			cd /home/
+			./menuprincipal.sh
+            ;;
+
+        *)
+            # Esta opcion se ejecuta si no es ninguna de las anteriores
+            clear
+            _menu
+            ;;
+    esac
+    read opc
+done
+
+script mensajetodo
+
+#!/bin/sh
+
+###
+### Establish the environment
+###
+
+###
+### Create the message
+###
+
+# $TR_APP_VERSION
+# $TR_TIME_LOCALTIME
+# $TR_TORRENT_DIR
+# $TR_TORRENT_HASH
+# $TR_TORRENT_ID
+# $TR_TORRENT_NAME
+
+MESSAGE="Llego el torrent #$TR_TORRENT_ID: [$TR_TORRENT_NAME] en $TR_TIME_LOCALTIME y lo guarde en $TR_TORRENT_DIR."
+
+###
+### Send the message
+###
+
+/home/mensaje.sh Nabil "$MESSAGE"
+
+script mensaje
+
+#!/bin/bash
+var=$1
+var1=$2
+telegram-cli -k /home/tg/tg-server.pub -WR -e "msg $1 '$2'"
+cd /home/
+
